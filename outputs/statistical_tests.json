@@ -1,0 +1,70 @@
+{
+  "analysis_date": "2026-01-16T23:10:49.902158",
+  "total_records_analyzed": 4938837,
+  "significance_level": 0.05,
+  "tests": [
+    {
+      "test_name": "Chi-Square Test - Age Distribution by State",
+      "statistic": 402375.03352620144,
+      "p_value": 0.0,
+      "dof": 18,
+      "significant": true,
+      "conclusion": "Age distribution significantly varies by state"
+    },
+    {
+      "test_name": "Independent T-Test - High vs Low Activity Areas",
+      "t_statistic": 59.28760307472291,
+      "p_value": 0.0,
+      "high_activity_mean": 508.16388717315215,
+      "low_activity_mean": 51.225561596061134,
+      "significant": true,
+      "conclusion": "Significant difference exists"
+    },
+    {
+      "test_name": "One-Way ANOVA - Seasonal Effects",
+      "f_statistic": 50138.04075751971,
+      "p_value": 0.0,
+      "significant": true,
+      "conclusion": "Significant seasonal differences"
+    },
+    {
+      "test_name": "Pearson Correlation",
+      "enrol_vs_demo": {
+        "r": 0.7656956222649071,
+        "p_value": 0.0,
+        "significant": true
+      },
+      "enrol_vs_bio": {
+        "r": 0.7238869774198037,
+        "p_value": 0.0,
+        "significant": true
+      }
+    },
+    {
+      "test_name": "Kruskal-Wallis H-Test - Age Group Differences",
+      "h_statistic": 1361151.2865864767,
+      "p_value": 0.0,
+      "significant": true,
+      "conclusion": "Significant age group differences"
+    },
+    {
+      "test_name": "Shapiro-Wilk Normality Test",
+      "w_statistic": 0.0789733578274534,
+      "p_value": 6.49524903705175e-94,
+      "normal": false,
+      "conclusion": "Not normally distributed"
+    }
+  ],
+  "summary": {
+    "total_tests": 6,
+    "significant_findings": 5,
+    "key_conclusions": [
+      "Age distribution SIGNIFICANTLY varies by state (Chi-Square, p < 0.05)",
+      "High vs Low activity areas show SIGNIFICANT enrollment differences (T-Test, p < 0.05)",
+      "Seasonal effects ARE statistically significant (ANOVA)",
+      "Enrollment-Update correlation: r = 0.766 (Strong positive relationship)",
+      "Age groups have SIGNIFICANTLY different enrollment patterns (Kruskal-Wallis, p < 0.05)",
+      "Enrollment data is NOT normally distributed"
+    ]
+  }
+}

@@ -1,0 +1,128 @@
+# ========================
+# UIDAI Hackathon .gitignore
+# ========================
+
+# =====================
+# Python
+# =====================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv/
+
+# =====================
+# Node.js / React
+# =====================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Build outputs
+frontend/build/
+frontend/.cache/
+.next/
+out/
+
+# =====================
+# Large Data Files (Don't commit - too big for GitHub)
+# =====================
+# Raw data (can be downloaded separately)
+data/
+
+# Large processed outputs (keep only essential ones)
+outputs/*.csv
+outputs/biometric_cleaned.csv
+outputs/demographic_cleaned.csv
+outputs/enrolment_cleaned.csv
+outputs/master_pincode.csv
+outputs/master_pincode_analysis.csv
+outputs/geographic_segments.csv
+outputs/fraud_predictions.csv
+
+# Keep these small files
+!outputs/cluster_analysis.csv
+!outputs/state_enrollment_stats.csv
+!outputs/priority_deployment_pincodes.csv
+!outputs/statistical_tests.json
+!outputs/metrics/
+
+# =====================
+# Trained Models (Large binary files)
+# =====================
+models/trained/*.pkl
+*.pkl
+*.joblib
+*.h5
+*.model
+
+# =====================
+# IDE / Editor
+# =====================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# =====================
+# Jupyter Notebooks
+# =====================
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# =====================
+# Environment Variables
+# =====================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# =====================
+# Logs
+# =====================
+logs/
+*.log
+npm-debug.log*
+
+# =====================
+# Testing
+# =====================
+coverage/
+.nyc_output/
+.pytest_cache/
+htmlcov/
+
+# =====================
+# Misc
+# =====================
+*.bak
+*.tmp
+*.temp

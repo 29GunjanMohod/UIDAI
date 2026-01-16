@@ -1,0 +1,38 @@
+{
+  "isolation_forest": {
+    "model": "Isolation Forest",
+    "total_samples": 19463,
+    "anomalies_detected": 390,
+    "anomaly_rate": 2.0,
+    "contamination": 0.02,
+    "n_estimators": 200
+  },
+  "random_forest": {
+    "model": "Random Forest Regressor",
+    "train_r2": 0.0195,
+    "test_r2": 0.0017,
+    "accuracy_pct": 0.17,
+    "mae": 169509.23,
+    "rmse": 202951.99,
+    "cv_mean": -0.2103,
+    "cv_std": 0.2918,
+    "n_estimators": 100
+  },
+  "gradient_boosting": {
+    "model": "Gradient Boosting",
+    "test_r2": 0.011,
+    "accuracy_pct": 1.1,
+    "mae": 170853.02,
+    "rmse": 204579.6,
+    "n_estimators": 100
+  },
+  "kmeans": {
+    "model": "K-Means",
+    "n_clusters": 2,
+    "silhouette_score": 0.9134,
+    "cluster_distribution": {
+      "0": 1004275,
+      "1": 1754
+    }
+  }
+}
