@@ -21,100 +21,89 @@ const LivePrediction = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [history, setHistory] = useState([]);
 
-  // Simulated model predictions (in real app, this calls backend)
+  // Real API call to backend ML models
   const runPrediction = async () => {
     setIsLoading(true);
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    let result = {};
-    
-    if (activeModel === 'fraud') {
-      // Isolation Forest logic
-      const total = parseInt(inputData.age_0_5 || 0) + 
-                   parseInt(inputData.age_5_17 || 0) + 
-                   parseInt(inputData.age_18_greater || 0);
-      
-      const avgPerAge = total / 3;
-      const isAnomaly = total > 500 || avgPerAge > 200 || 
-                       (parseInt(inputData.age_0_5 || 0) > total * 0.5);
-      
-      const anomalyScore = Math.min(0.99, (total / 1000) + Math.random() * 0.3);
-      
-      result = {
-        model: 'Isolation Forest',
-        prediction: isAnomaly ? 'ANOMALY DETECTED 🚨' : 'NORMAL ✅',
-        confidence: isAnomaly ? (anomalyScore * 100).toFixed(1) : ((1 - anomalyScore) * 100).toFixed(1),
-        risk_level: isAnomaly ? 'HIGH' : 'LOW',
-        details: {
-          anomaly_score: anomalyScore.toFixed(4),
-          total_enrollments: total,
-          recommendation: isAnomaly 
-            ? 'Flag for manual review. Unusual enrollment pattern detected.'
-            : 'No action needed. Pattern within normal range.'
-        }
-      };
-    } else if (activeModel === 'cluster') {
-      // K-Means logic
-      const total = parseInt(inputData.age_0_5 || 0) + 
-                   parseInt(inputData.age_5_17 || 0) + 
-                   parseInt(inputData.age_18_greater || 0);
-      
-      let cluster, clusterName, priority;
-      if (total > 300) {
-        cluster = 0;
-        clusterName = 'High Volume Zone';
-        priority = 'Priority 1 - Needs additional resources';
-      } else if (total > 100) {
-        cluster = 1;
-        clusterName = 'Medium Volume Zone';
-        priority = 'Priority 2 - Monitor closely';
-      } else {
-        cluster = 2;
-        clusterName = 'Low Volume Zone';
-        priority = 'Priority 3 - Standard service';
+
+    try {
+      const response = await fetch('http://localhost:8000/api/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model_type: activeModel,
+          pincode: inputData.pincode,
+          state: inputData.state,
+          district: inputData.district,
+          age_0_5: parseInt(inputData.age_0_5) || 0,
+          age_5_17: parseInt(inputData.age_5_17) || 0,
+          age_18_greater: parseInt(inputData.age_18_greater) || 0,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
       }
-      
-      result = {
-        model: 'K-Means Clustering',
-        prediction: `Cluster ${cluster}: ${clusterName}`,
-        confidence: '91.34',
-        cluster_id: cluster,
-        details: {
-          silhouette_score: '0.9134',
-          cluster_name: clusterName,
-          priority_level: priority,
-          recommendation: cluster === 0 
-            ? 'Deploy mobile van and additional staff'
-            : cluster === 1 
-            ? 'Schedule periodic camps'
-            : 'Maintain current service level'
-        }
-      };
-    } else if (activeModel === 'forecast') {
-      // Random Forest forecast
-      const baseEnrollment = parseInt(inputData.age_18_greater || 100);
-      const forecast = Math.round(baseEnrollment * (1 + Math.random() * 0.3));
-      
-      result = {
-        model: 'Random Forest Regressor',
-        prediction: `${forecast.toLocaleString()} enrollments`,
-        confidence: '68.7',
-        details: {
-          predicted_value: forecast,
-          lower_bound: Math.round(forecast * 0.85),
-          upper_bound: Math.round(forecast * 1.15),
-          trend: forecast > baseEnrollment ? '📈 Increasing' : '📉 Decreasing',
-          recommendation: `Plan for ${Math.ceil(forecast / 50)} staff members`
-        }
-      };
+
+      const result = await response.json();
+      setPrediction(result);
+      setHistory(prev => [{ ...result, timestamp: new Date(), input: { ...inputData } }, ...prev.slice(0, 4)]);
+    } catch (error) {
+      console.error('Prediction error:', error);
+      // Fallback to simulated prediction if API fails
+      let result = {};
+      const total = parseInt(inputData.age_0_5 || 0) +
+        parseInt(inputData.age_5_17 || 0) +
+        parseInt(inputData.age_18_greater || 0);
+
+      if (activeModel === 'fraud') {
+        const isAnomaly = total > 500;
+        result = {
+          model: 'Isolation Forest (Offline Mode)',
+          prediction: isAnomaly ? 'ANOMALY DETECTED 🚨' : 'NORMAL ✅',
+          confidence: isAnomaly ? '75.0' : '85.0',
+          risk_level: isAnomaly ? 'HIGH' : 'LOW',
+          details: {
+            anomaly_score: '0.65',
+            total_enrollments: total,
+            model_type: 'Fallback - API Unavailable',
+            recommendation: 'Please start the backend server for real predictions.'
+          }
+        };
+      } else if (activeModel === 'cluster') {
+        const cluster = total > 300 ? 0 : total > 100 ? 1 : 2;
+        result = {
+          model: 'K-Means Clustering (Offline Mode)',
+          prediction: `Cluster ${cluster}: ${cluster === 0 ? 'High Volume' : cluster === 1 ? 'Medium Volume' : 'Low Volume'}`,
+          confidence: '91.34',
+          cluster_id: cluster,
+          details: {
+            silhouette_score: '0.9134',
+            model_type: 'Fallback - API Unavailable',
+            recommendation: 'Please start the backend server for real predictions.'
+          }
+        };
+      } else {
+        const forecast = Math.round(total * 1.2);
+        result = {
+          model: 'Random Forest (Offline Mode)',
+          prediction: `${forecast.toLocaleString()} enrollments`,
+          confidence: '68.7',
+          details: {
+            predicted_value: forecast,
+            model_type: 'Fallback - API Unavailable',
+            recommendation: 'Please start the backend server for real predictions.'
+          }
+        };
+      }
+      setPrediction(result);
+      setHistory(prev => [{ ...result, timestamp: new Date(), input: { ...inputData } }, ...prev.slice(0, 4)]);
+    } finally {
+      setIsLoading(false);
     }
-    
-    setPrediction(result);
-    setHistory(prev => [{ ...result, timestamp: new Date(), input: {...inputData} }, ...prev.slice(0, 4)]);
-    setIsLoading(false);
   };
+
 
   const models = [
     { id: 'fraud', name: '🚨 Fraud Detection', model: 'Smart AI', desc: 'Find suspicious patterns' },
@@ -125,7 +114,7 @@ const LivePrediction = () => {
   return (
     <div style={styles.container}>
       {/* Header */}
-      <motion.div 
+      <motion.div
         style={styles.header}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -177,7 +166,7 @@ const LivePrediction = () => {
                   style={styles.input}
                   placeholder="e.g., 560001"
                   value={inputData.pincode}
-                  onChange={e => setInputData({...inputData, pincode: e.target.value})}
+                  onChange={e => setInputData({ ...inputData, pincode: e.target.value })}
                 />
               </div>
               <div style={styles.inputGroup}>
@@ -187,7 +176,7 @@ const LivePrediction = () => {
                   style={styles.input}
                   placeholder="e.g., Karnataka"
                   value={inputData.state}
-                  onChange={e => setInputData({...inputData, state: e.target.value})}
+                  onChange={e => setInputData({ ...inputData, state: e.target.value })}
                 />
               </div>
               <div style={styles.inputGroup}>
@@ -197,7 +186,7 @@ const LivePrediction = () => {
                   style={styles.input}
                   placeholder="e.g., 50"
                   value={inputData.age_0_5}
-                  onChange={e => setInputData({...inputData, age_0_5: e.target.value})}
+                  onChange={e => setInputData({ ...inputData, age_0_5: e.target.value })}
                 />
               </div>
               <div style={styles.inputGroup}>
@@ -207,7 +196,7 @@ const LivePrediction = () => {
                   style={styles.input}
                   placeholder="e.g., 120"
                   value={inputData.age_5_17}
-                  onChange={e => setInputData({...inputData, age_5_17: e.target.value})}
+                  onChange={e => setInputData({ ...inputData, age_5_17: e.target.value })}
                 />
               </div>
               <div style={styles.inputGroup}>
@@ -217,11 +206,11 @@ const LivePrediction = () => {
                   style={styles.input}
                   placeholder="e.g., 200"
                   value={inputData.age_18_greater}
-                  onChange={e => setInputData({...inputData, age_18_greater: e.target.value})}
+                  onChange={e => setInputData({ ...inputData, age_18_greater: e.target.value })}
                 />
               </div>
             </div>
-            
+
             <motion.button
               style={styles.predictButton}
               whileHover={{ scale: 1.02 }}
@@ -254,25 +243,25 @@ const LivePrediction = () => {
                   <h3 style={styles.resultTitle}>🎯 Prediction Result</h3>
                   <span style={styles.modelBadge}>{prediction.model}</span>
                 </div>
-                
+
                 <div style={styles.mainPrediction}>
                   {prediction.prediction}
                 </div>
-                
+
                 <div style={styles.confidenceBar}>
                   <div style={styles.confidenceLabel}>
                     Confidence: <strong>{prediction.confidence}%</strong>
                   </div>
                   <div style={styles.progressBg}>
-                    <motion.div 
+                    <motion.div
                       style={{
                         ...styles.progressFill,
                         width: `${prediction.confidence}%`,
-                        background: parseFloat(prediction.confidence) > 70 
+                        background: parseFloat(prediction.confidence) > 70
                           ? 'linear-gradient(90deg, #10b981, #059669)'
                           : parseFloat(prediction.confidence) > 40
-                          ? 'linear-gradient(90deg, #f59e0b, #d97706)'
-                          : 'linear-gradient(90deg, #ef4444, #dc2626)'
+                            ? 'linear-gradient(90deg, #f59e0b, #d97706)'
+                            : 'linear-gradient(90deg, #ef4444, #dc2626)'
                       }}
                       initial={{ width: 0 }}
                       animate={{ width: `${prediction.confidence}%` }}
@@ -329,7 +318,7 @@ const LivePrediction = () => {
       </div>
 
       {/* Model Info Banner */}
-      <motion.div 
+      <motion.div
         style={styles.infoBanner}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

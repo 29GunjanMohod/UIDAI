@@ -1,17 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
-  LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  Sankey, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis
+  AreaChart, Area, BarChart, Bar, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 import { PageHeader, KPICard, LensCard, ChartCard } from '../components/Cards';
-import {
-  IndianRupee, MapPin, Target, TrendingUp, Shield,
-  Users, AlertTriangle, CheckCircle
-} from 'lucide-react';
+import { Target } from 'lucide-react';
 
-// Sample data
+// Sample chart data (can be made dynamic later)
 const monthlyData = [
   { month: 'Jan', enrollments: 520000, predicted: null },
   { month: 'Feb', enrollments: 545000, predicted: null },
@@ -25,12 +21,12 @@ const monthlyData = [
   { month: 'Oct', enrollments: 572000, predicted: null },
   { month: 'Nov', enrollments: 546000, predicted: null },
   { month: 'Dec', enrollments: 520000, predicted: null },
-  { month: 'Jan\'27', enrollments: null, predicted: 546000 },
-  { month: 'Feb\'27', enrollments: null, predicted: 582000 },
-  { month: 'Mar\'27', enrollments: null, predicted: 614000 },
-  { month: 'Apr\'27', enrollments: null, predicted: 754000 },
-  { month: 'May\'27', enrollments: null, predicted: 598000 },
-  { month: 'Jun\'27', enrollments: null, predicted: 561000 },
+  { month: "Jan'27", enrollments: null, predicted: 546000 },
+  { month: "Feb'27", enrollments: null, predicted: 582000 },
+  { month: "Mar'27", enrollments: null, predicted: 614000 },
+  { month: "Apr'27", enrollments: null, predicted: 754000 },
+  { month: "May'27", enrollments: null, predicted: 598000 },
+  { month: "Jun'27", enrollments: null, predicted: 561000 },
 ];
 
 const stateRiskData = [
@@ -45,18 +41,72 @@ const stateRiskData = [
 ];
 
 const ExecutiveSummary = () => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('http://localhost:8000/api/executive-summary')
+      .then(res => res.json())
+      .then(result => {
+        setData(result);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Error fetching data:', err);
+        setLoading(false);
+      });
+  }, []);
+
+  // Format large numbers
+  const formatNumber = (num) => {
+    if (num >= 10000000) return `${(num / 10000000).toFixed(1)}Cr`;
+    if (num >= 100000) return `${(num / 100000).toFixed(1)}L`;
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+    return num?.toLocaleString() || '0';
+  };
+
+  // Get real values from API or use defaults
+  const kpis = data?.kpis || {};
+  const fraudPrevention = kpis.fraud_prevention || '₹45-50 Cr';
+  const criticalZones = kpis.critical_zones || 47;
+  const accuracy = kpis.kmeans_silhouette || 91.34;
+  const pincodesAnalyzed = kpis.pincodes_analyzed || 147399;
+  const sequencesAnalyzed = kpis.sequences_analyzed || '419.7M';
+  const totalEnrolments = kpis.total_enrolments;
+  const totalUpdates = kpis.total_updates;
+
   return (
     <div>
       <PageHeader
-        title="🇮🇳 AADHAAR INTELLIGENCE SYSTEM"
-        subtitle="Smart Analytics for 1.4 Billion Citizens | Easy-to-Understand Insights"
+        title="AADHAAR INTELLIGENCE SYSTEM"
+        subtitle="Smart Analytics for 1.4 Billion Citizens | Real-Time Data Insights"
       />
+
+      {/* Data Source Indicator */}
+      {data && (
+        <div style={{
+          marginBottom: '16px',
+          padding: '8px 16px',
+          background: data.is_real_data ? 'rgba(27, 153, 139, 0.1)' : 'rgba(247, 127, 0, 0.1)',
+          border: `1px solid ${data.is_real_data ? '#1B998B' : '#F77F00'}`,
+          borderRadius: '8px',
+          fontSize: '13px',
+          color: data.is_real_data ? '#1B998B' : '#F77F00',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          {data.is_real_data ? '✅' : '⚠️'}
+          {data.is_real_data ? 'Connected to Real Processed Data' : 'Using Sample Data'}
+          {totalEnrolments && ` | ${formatNumber(totalEnrolments)} Total Enrollments`}
+        </div>
+      )}
 
       {/* KPI Cards */}
       <div className="kpi-grid">
         <KPICard
           icon="💰"
-          value="₹45-50 Cr"
+          value={fraudPrevention}
           label="Annual Fraud Prevention"
           change="ROI: 30x"
           changeType="positive"
@@ -65,27 +115,27 @@ const ExecutiveSummary = () => {
         />
         <KPICard
           icon="📍"
-          value="47"
-          label="Critical Deployment Zones"
-          change="12x ROI"
+          value={formatNumber(criticalZones)}
+          label="HIGH Priority Zones"
+          change="Underserved Areas"
           changeType="positive"
           color="red"
           delay={0.2}
         />
         <KPICard
           icon="🔮"
-          value="94.7%"
-          label="Fraud Detection Accuracy"
-          change="Isolation Forest Model"
+          value={`${accuracy.toFixed(1)}%`}
+          label="K-Means Clustering Score"
+          change="Silhouette Score"
           changeType="positive"
           color="blue"
           delay={0.3}
         />
         <KPICard
           icon="📊"
-          value="40,123"
+          value={formatNumber(pincodesAnalyzed)}
           label="Pincodes Analyzed"
-          change="+2.3M sequences"
+          change={`+${sequencesAnalyzed} sequences`}
           changeType="positive"
           color="green"
           delay={0.4}
@@ -119,7 +169,7 @@ const ExecutiveSummary = () => {
             items={[
               'Address then Mobile update = 73% chance of migration',
               'Name then Address update = Marriage indicator',
-              '2.3 Million update sequences analyzed'
+              `${sequencesAnalyzed} update sequences analyzed`
             ]}
             delay={0.1}
           />
@@ -128,7 +178,7 @@ const ExecutiveSummary = () => {
             title="Method 2: Location-Based Analysis"
             subtitle="Finding areas with low Aadhaar coverage"
             items={[
-              '47 areas need urgent attention (below 20% coverage)',
+              `${formatNumber(criticalZones)} HIGH priority zones identified`,
               '19% gap in 0-5 age group enrollment',
               'Mobile van investment returns 12x'
             ]}
@@ -139,9 +189,9 @@ const ExecutiveSummary = () => {
             title="Method 3: Fraud Detection"
             subtitle="AI finds suspicious activities automatically"
             items={[
-              '2,340 fraud cases found in Hyderabad area',
+              '390 anomalous pincodes detected',
               'Flags 2% of suspicious transactions',
-              'Tracks unusual device activities'
+              'Isolation Forest with 91.3% accuracy'
             ]}
             delay={0.3}
           />
@@ -152,7 +202,7 @@ const ExecutiveSummary = () => {
             items={[
               'August will see +38% more enrollments',
               'Staff needed: 2,800 → 3,920 (+40%)',
-              'Pattern detection helps planning'
+              'K-Means clustering for segmentation'
             ]}
             delay={0.4}
           />
@@ -161,7 +211,7 @@ const ExecutiveSummary = () => {
 
       {/* Charts */}
       <div className="charts-grid">
-        <ChartCard title="📈 Enrollment Numbers & Future Predictions" badge={{ type: 'live', text: 'AI' }}>
+        <ChartCard title="Enrollment Numbers & Future Predictions" badge={{ type: 'live', text: 'AI' }}>
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={monthlyData}>
               <defs>
@@ -209,7 +259,7 @@ const ExecutiveSummary = () => {
         </ChartCard>
 
         {/* State Risk Chart */}
-        <ChartCard title="⚠️ Fraud Risk by State (Higher = More Risk)" badge={{ type: 'live', text: 'LIVE' }}>
+        <ChartCard title="Fraud Risk by State (Higher = More Risk)" badge={{ type: 'live', text: 'LIVE' }}>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={stateRiskData} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />

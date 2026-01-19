@@ -10,7 +10,7 @@ import { TrendingUp, Users, Calendar, Cpu } from 'lucide-react';
 
 // Historical + Forecast data
 const forecastData = [
-  { month: 'Jan 26', actual: 520000, predicted: null, type: 'historical' },
+  { month: "Jan '25", actual: 520000, predicted: null, type: 'historical' },
   { month: 'Feb', actual: 545000, predicted: null, type: 'historical' },
   { month: 'Mar', actual: 598000, predicted: null, type: 'historical' },
   { month: 'Apr', actual: 650000, predicted: null, type: 'historical' },
@@ -22,7 +22,7 @@ const forecastData = [
   { month: 'Oct', actual: 572000, predicted: null, type: 'historical' },
   { month: 'Nov', actual: 546000, predicted: null, type: 'historical' },
   { month: 'Dec', actual: 520000, predicted: null, type: 'historical' },
-  { month: 'Jan 27', actual: null, predicted: 546000, upper: 600600, lower: 491400, type: 'forecast' },
+  { month: "Jan '26", actual: null, predicted: 546000, upper: 600600, lower: 491400, type: 'forecast' },
   { month: 'Feb', actual: null, predicted: 582000, upper: 640200, lower: 523800, type: 'forecast' },
   { month: 'Mar', actual: null, predicted: 614000, upper: 675400, lower: 552600, type: 'forecast' },
   { month: 'Apr', actual: null, predicted: 754000, upper: 829400, lower: 678600, type: 'forecast' },
@@ -32,7 +32,7 @@ const forecastData = [
 
 // Staffing data
 const staffingData = [
-  { month: 'Jan 27', predicted: 546000, staff: 2650, change: -150 },
+  { month: "Jan '26", predicted: 546000, staff: 2650, change: -150 },
   { month: 'Feb', predicted: 582000, staff: 2820, change: 20 },
   { month: 'Mar', predicted: 614000, staff: 2970, change: 170 },
   { month: 'Apr (Peak)', predicted: 754000, staff: 3920, change: 1120 },
